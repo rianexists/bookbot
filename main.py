@@ -1,3 +1,5 @@
+import urllib.request as url
+
 def words(file):
     return len(file.split())
 
@@ -11,10 +13,24 @@ def chars(file):
     return dict(sorted(frequency.items(), key=lambda item: item[1], reverse=True))
 
 def main():
-#    path = input("Please enter the path to your text")
-    path = "texts/frankenstein.txt"
-    with open(path) as f:
-        file_contents = f.read()
+    path = input("Please enter the path/link to your text: ")
+
+    file_contents = ""
+    try:
+        for result in url.urlopen(path):
+            file_contents += str(result)
+    except url.HTTPError:
+        print("Link not found. Please try again.")
+        main()
+        return
+    except ValueError:
+        try:
+           with open(path) as f:
+                file_contents = f.read()
+        except FileNotFoundError:
+            print("File not found. Please try again.")
+            main()
+            return
 
     print(f"--- Begin report of {path} ---")
     print(f"{words(file_contents)} words found in the document")
